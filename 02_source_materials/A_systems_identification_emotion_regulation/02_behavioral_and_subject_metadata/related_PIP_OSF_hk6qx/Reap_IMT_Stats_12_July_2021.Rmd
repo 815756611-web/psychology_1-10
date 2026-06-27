@@ -1,0 +1,1172 @@
+---
+title: "Reappraisal Project - Descriptives"
+author: "C.M. DuPont"
+editor: "P.J. Gianaros"
+date: "12/14/2020"
+output:
+  html_document:
+    code_folding: hide
+    df_print: paged
+    toc: yes
+    toc_depth: 5
+    toc_float:
+      collapsed: no
+  pdf_document:
+    toc: yes
+    toc_depth: '5'
+---
+
+# Importing Data
+```{r, warning = FALSE}
+
+library(readr)
+pip <- read.csv("Reap_IMT_Data_12_July_2021.csv")
+
+```
+
+
+# Basic Demigraphics
+```{r, warning = FALSE}
+
+# Column for missing f/u IMT (N = 30 with missing data)
+pip$followup <- 0
+pip$followup[is.na(pip$Site_of_Fastest_IMT_Max_Progr)] <- 1
+
+pip$followup <- factor(pip$followup,
+                 levels = c(0, 1),
+                 labels = c("Follow-up IMT", "Missing IMT"))
+
+# Assigning levels to sex 
+pip$gender <- factor(pip$sex,
+                 levels = c(1,2),
+                 labels = c("Male", "Female"))
+
+# Assigning levels to race 
+pip$race <- factor(pip$race_ethnicity,
+                 levels = c(1, 2, 3, 4, 5, 6),
+                 labels = c("white", "African American - Black", "Asian",
+                            "Native American", "Bi/Multiracial", "Other"))
+
+# Assigning levels to smoke 
+pip$smoke <- factor(pip$smoke,
+                 levels = c(0, 1, 2),
+                 labels = c("Never", "Former", "Current"))
+
+# Assigning levels to income 
+pip$Income <- factor(pip$Income,
+                 levels = c( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
+                 labels = c("< $10,000/yr", "$10,000-14,999/year", 
+                            "$15,000-24,999/year", "$25,000-34,999/yea",
+                            "$35,000-49,999/year", "$50,000-64,999/year",
+                            "$65,000-79,999/year", "$80,000-94,999/year",
+                            "$95,000-109,999/year", "$110,000-124,999/year",
+                            "$125,000-139,999/year", "$140,000-154,999/year",
+                            "$155,00-169,999/year", "$170,000-185,000/year",
+                            "> $185,000/year"))
+
+library(table1)
+
+#Recreating table 1
+table1(~ sex + age + race_ethnicity + Yrs_School + Income + smoke + drink_last_week + BMI + 
+         waist + choles + trig + hdl + ldl + glucose + sbp + dbp + 
+         hr + fram.10yrRisk + LookNeutral_Rating + LookNeg_Rating + 
+         RegulateNeg_Rating + chg_LNeg_LNur +  chg_RNeg_LNeg + mavgccaf + yrs_followup + mavgccaf_chgPerYr + 
+          Site_of_Fastest_IMT_Max_Progr| followup, data = pip)
+
+```
+
+## Outlier Detection
+Participants were considered outliers if their values are > 3SD above the mean on any variable. Alcohol consumption: 3 outliers; length of follow-up: 5 outliers; Look Neutral: 6 outliers; Mean Maximum IMT at site of maximum progression: 5 outliers; BMI: 1 outlier; HDL: 1 outlier; Triglycerides: 3 outliers; Because the Framingham Risk Score is skewed in the sample, anyone with > 5% risk is considered an outlier (11 participants). IDs for all outliers can be found in the tables below.
+
+### Age 
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+age <- pip[c("id.public", "age")]
+
+# Outliers
+age %>%
+  identify_outliers(age)
+
+# Histogram
+hist(pip$age,
+     main = "Histogram of Age (years)",
+     xlab = "Age (years)")
+
+# Boxplot
+boxplot(pip$age,
+        main = "Distribution of Age in Sample",
+        xlab = "Age (in years)",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(20, 60))
+
+```
+### Number of Drinks - last week
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "drink_last_week")]
+
+#Outliers
+var %>%
+  identify_outliers(drink_last_week)
+
+hist(pip$drink_last_week,
+     main = "Histogram of Number of Drinks in the last week",
+     xlab = "Number of Drinks (standard units)")
+
+boxplot(pip$drink_last_week,
+        main = "Distribution of Number of Drinks in the last week in Sample",
+        xlab = "Number of Drinks (standard units)",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(0, 30))
+
+```
+
+### Years in School
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "Yrs_School")]
+
+#Outliers
+var %>%
+  identify_outliers(Yrs_School)
+
+hist(pip$Yrs_School,
+     main = "Histogram of Years in School",
+     xlab = "Years in School")
+
+boxplot(pip$Yrs_School,
+        main = "Distribution of Years in School in Sample",
+        xlab = "Years in School",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(5, 25))
+
+```
+
+### Years - Follow Up
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "yrs_followup")]
+
+#Outliers
+var %>%
+  identify_outliers(yrs_followup)
+
+hist(pip$yrs_followup,
+     main = "Histogram of Time at Follow-Up (years)",
+     xlab = "Follow-up (years)")
+
+boxplot(pip$yrs_followup,
+        main = "Distribution of Follow-up in Sample",
+        xlab = "Follow-up (in years)",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(1, 5))
+
+```
+
+### Look Neutral
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "LookNeutral_Rating")]
+
+#Outliers
+var %>%
+  identify_outliers(LookNeutral_Rating)
+
+hist(pip$LookNeutral_Rating,
+     main = "Histogram of Look Neutral Rating",
+     xlab = "Look Neutral Rating (1-5)")
+
+boxplot(pip$LookNeutral_Rating,
+        main = "Distribution of Look Neutral Rating in Sample",
+        xlab = "Look Neutral Rating (1-5)",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(1, 5))
+```
+
+#### 95% CI (N = 176)
+```{r}
+
+t.test(pip$LookNeutral_Rating)$"conf.int"
+
+```
+
+#### 95% CI (N = 145)
+```{r}
+
+followup <- subset(pip, pip$followup == "Follow-up IMT")
+
+t.test(followup$LookNeutral_Rating)$"conf.int"
+
+```
+
+### Look Negative
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "LookNeg_Rating")]
+
+#Outliers
+var %>%
+  identify_outliers(LookNeg_Rating)
+
+hist(pip$LookNeg_Rating,
+     main = "Histogram of Look Negative Rating",
+     xlab = "Look Negative Rating (1-5)")
+
+boxplot(pip$LookNeg_Rating,
+        main = "Distribution of Look Negative Rating in Sample",
+        xlab = "Look Negative Rating (1-5)",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(1, 5))
+
+```
+
+#### 95% CI (N = 176)
+```{r}
+
+t.test(pip$LookNeg_Rating)$"conf.int"
+
+```
+
+#### 95% CI (N = 145)
+```{r}
+
+t.test(followup$LookNeg_Rating)$"conf.int"
+
+```
+
+### Regulate Negative
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "RegulateNeg_Rating")]
+
+#Outliers
+var %>%
+  identify_outliers(RegulateNeg_Rating)
+
+hist(pip$RegulateNeg_Rating,
+     main = "Histogram of Regulate Negative Rating",
+     xlab = "Regulate Negative Rating (1-5)")
+
+boxplot(pip$RegulateNeg_Rating,
+        main = "Distribution of Regulate Negative Rating in Sample",
+        xlab = "Regulate Negative Rating (1-5)",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(1, 5))
+
+```
+
+#### 95% CI (N = 176)
+```{r}
+
+t.test(pip$RegulateNeg_Rating)$"conf.int"
+
+```
+
+#### 95% CI (N = 145)
+```{r}
+
+t.test(followup$RegulateNeg_Rating)$"conf.int"
+
+```
+
+### Look Negative - Look Neutral
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "chg_LNeg_LNur")]
+
+#Outliers
+var %>%
+  identify_outliers(chg_LNeg_LNur)
+
+hist(pip$chg_LNeg_LNur,
+     main = "Histogram of Look Negative - Look Neutral Ratings",
+     xlab = "Look Negative - Look Neutral")
+
+boxplot(pip$chg_LNeg_LNur,
+        main = "Distribution of Look Negative - Look Neutral Ratings in Sample",
+        xlab = "Look Negative - Look Neutral",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(0, 5))
+
+```
+
+#### 95% CI (N = 176)
+```{r}
+
+t.test(pip$chg_LNeg_LNur)$"conf.int"
+
+```
+
+#### 95% CI (N = 145)
+```{r}
+
+t.test(followup$chg_LNeg_LNur)$"conf.int"
+
+```
+
+### Regulate Negative - Look Negative
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "chg_RNeg_LNeg")]
+
+#Outliers
+var %>%
+  identify_outliers(chg_RNeg_LNeg)
+
+hist(pip$chg_RNeg_LNeg,
+     main = "Histogram of Regulate Negative - Look Negative Ratings",
+     xlab = "Regulate Negative - Look Negative")
+
+boxplot(pip$chg_RNeg_LNeg,
+        main = "Distribution of Regulate Negative - Look Negative Ratings in Sample",
+        xlab = "Regulate Negative - Look Negative",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(0, 5))
+
+```
+
+#### 95% CI (N = 176)
+```{r}
+
+t.test(pip$chg_RNeg_LNeg)$"conf.int"
+
+```
+
+#### 95% CI (N = 145)
+```{r}
+
+t.test(followup$chg_RNeg_LNeg)$"conf.int"
+
+```
+
+### Average mean IMT at CCA
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "mavgccaf")]
+
+#Outliers
+var %>%
+  identify_outliers(mavgccaf)
+
+hist(pip$mavgccaf,
+     main = "Histogram of Average mean IMT at CCA",
+     xlab = "Average mean IMT at CCA (mm)")
+
+boxplot(pip$mavgccaf,
+        main = "Distribution of Average mean IMT at CCA in Sample",
+        xlab = "Average mean IMT at CCA (mm)",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(0, 1.5))
+
+```
+
+#### 95% CI (N = 176)
+```{r}
+
+t.test(pip$mavgccaf)$"conf.int"
+
+```
+
+#### 95% CI (N = 145)
+```{r}
+
+t.test(followup$mavgccaf)$"conf.int"
+
+```
+
+### Change in Average mean IMT at CCA per year
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "mavgccaf_chgPerYr")]
+
+#Outliers
+var %>%
+  identify_outliers(mavgccaf_chgPerYr)
+
+hist(pip$mavgccaf_chgPerYr,
+     main = "Histogram of Change in Average mean IMT at CCA per year",
+     xlab = "Change in Average mean IMT at CCA per year (mm/yr)")
+
+boxplot(pip$mavgccaf_chgPerYr,
+        main = "Distribution of Change in Average mean IMT at CCA per year in Sample",
+        xlab = "Change in Average mean IMT at CCA per year (mm/yr)",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(-.2, .20))
+
+```
+
+#### 95% CI (N = 176)
+```{r}
+
+t.test(pip$mavgccaf_chgPerYr)$"conf.int"
+
+```
+
+#### 95% CI (N = 145)
+```{r}
+
+t.test(followup$mavgccaf_chgPerYr)$"conf.int"
+
+```
+
+### Change in Mean IMT at Site of Maximum Progression
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "Site_of_Fastest_IMT_Max_Progr")]
+
+#Outliers
+var %>%
+  identify_outliers(Site_of_Fastest_IMT_Max_Progr)
+
+hist(pip$Site_of_Fastest_IMT_Max_Progr,
+     main = "Histogram of Change in IMT at Site of max progression per year",
+     xlab = "Change in IMT at Site of max progression per year (mm/yr)")
+
+boxplot(pip$Site_of_Fastest_IMT_Max_Progr,
+        main = "Distribution of Change in IMT at Site of max progression per year in Sample",
+        xlab = "Change in IMT at Site of max progression per year (mm/yr)",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(-.2, .20))
+
+```
+
+#### 95% CI (N = 176)
+```{r}
+
+t.test(pip$Site_of_Fastest_IMT_Max_Progr)$"conf.int"
+
+```
+
+#### 95% CI (N = 145)
+```{r}
+
+t.test(followup$Site_of_Fastest_IMT_Max_Progr)$"conf.int"
+
+```
+
+### BMI
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "BMI")]
+
+#Outliers
+var %>%
+  identify_outliers(BMI)
+
+hist(pip$BMI,
+     main = "Histogram of BMI at baseline (kg/m^2)",
+     xlab = "BMI (kg/m^2)")
+
+boxplot(pip$BMI,
+        main = "Distribution of BMI in Sample",
+        xlab = "BMI (kg/m^2)",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(15, 60))
+
+```
+
+### Waist Circumference
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "waist")]
+
+#Outliers
+var %>%
+  identify_outliers(waist)
+
+hist(pip$waist,
+     main = "Histogram of Waist Circumference at baseline (cm)",
+     xlab = "Waist Circumference (cm)")
+
+boxplot(pip$waist,
+        main = "Distribution of Waist Circumference in Sample",
+        xlab = "Waist Circumference (cm)",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(20, 60))
+
+```
+
+### Clinic SBP
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "sbp")]
+
+#Outliers
+var %>%
+  identify_outliers(sbp)
+
+hist(pip$sbp,
+     main = "Histogram of Clinic SBP at baseline",
+     xlab = "SBP (mmHg)")
+
+boxplot(pip$sbp,
+        main = "Distribution of Clinic SBP in Sample",
+        xlab = "SBP (mmHg)",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(85, 170))
+
+```
+
+### Clinic DBP
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "dbp")]
+
+#Outliers
+var %>%
+  identify_outliers(dbp)
+
+hist(pip$dbp,
+     main = "Histogram of Clinic DBP at baseline",
+     xlab = "DBP (mmHg)")
+
+boxplot(pip$dbp,
+        main = "Distribution of Clinic DBP in Sample",
+        xlab = "DBP (mmHg)",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(50, 110))
+
+```
+
+### Clinic HR
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "hr")]
+
+#Outliers
+var %>%
+  identify_outliers(hr)
+
+hist(pip$hr,
+     main = "Histogram of Clinic HR at baseline",
+     xlab = "HR (bpm)")
+
+boxplot(pip$hr,
+        main = "Distribution of Clinic HR in Sample",
+        xlab = "HR (bpm)",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(45, 120))
+
+```
+
+### Glucose
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "glucose")]
+
+#Outliers
+var %>%
+  identify_outliers(glucose)
+
+hist(pip$glucose,
+     main = "Histogram of Glucose at baseline",
+     xlab = "Glucose (mg/dL)")
+
+boxplot(pip$glucose,
+        main = "Distribution of Glucose in Sample",
+        xlab = "Glucose (mg/dL)",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(60, 120))
+
+```
+
+### Cholesterol
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "choles")]
+
+#Outliers
+var %>%
+  identify_outliers(choles)
+
+hist(pip$choles,
+     main = "Histogram of Total Cholesterol at baseline",
+     xlab = "Total Cholesterol (mg/dL)")
+
+boxplot(pip$choles,
+        main = "Distribution of Total Cholesterol in Sample",
+        xlab = "Total Cholesterol (mg/dL)",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(100, 300))
+
+```
+
+### HDL
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "hdl")]
+
+#Outliers
+var %>%
+  identify_outliers(hdl)
+
+hist(pip$hdl,
+     main = "Histogram of HDL at baseline",
+     xlab = "HDL (mg/dL)")
+
+boxplot(pip$hdl,
+        main = "Distribution of HDL in Sample",
+        xlab = "HDL (mg/dL)",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(20, 160))
+
+```
+
+### LDL
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "ldl")]
+
+#Outliers
+var %>%
+  identify_outliers(ldl)
+
+hist(pip$ldl,
+     main = "Histogram of LDL at baseline",
+     xlab = "LDL (mg/dL)")
+
+boxplot(pip$ldl,
+        main = "Distribution of LDL in Sample",
+        xlab = "LDL (mg/dL)",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(50, 225))
+
+```
+
+### Triglycerides
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "trig")]
+
+#Outliers
+var %>%
+  identify_outliers(trig)
+
+hist(pip$trig,
+     main = "Histogram of Triglycerides at baseline",
+     xlab = "Triglycerides (mg/dL)")
+
+boxplot(pip$trig,
+        main = "Distribution of Triglycerides in Sample",
+        xlab = "Triglycerides (mg/dL)",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(0, 450))
+
+```
+
+### Framingham Risk Score
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+var <- pip[c("id.public", "fram.10yrRisk")]
+
+#Outliers
+var %>%
+  identify_outliers(fram.10yrRisk)
+
+hist(pip$fram.10yrRisk,
+     main = "Histogram of Framingham Risk Score at baseline",
+     xlab = "Framingham Risk Score (% Risk)")
+
+boxplot(pip$fram.10yrRisk,
+        main = "Distribution of Framingham Risk Score in Sample",
+        xlab = "Framingham Risk Score (% Risk)",
+        ylab = "Frequency",
+        col = "gold",
+        horizontal = TRUE,
+        ylim = c(0, 20))
+
+rm(var)
+
+```
+
+# Summary of Outliers
+```{r, warning = FALSE}
+
+library(rstatix)
+library(tidyverse)
+
+out1 <- pip[c("id.public", "drink_last_week")]
+out2 <- pip[c("id.public", "yrs_followup")]
+out3 <- pip[c("id.public", "LookNeutral_Rating")]
+out4 <- pip[c("id.public", "BMI")]
+out5 <- pip[c("id.public", "hdl")]
+out6 <- pip[c("id.public", "trig")]
+
+#Outliers
+out1$out.drink <- is_extreme(out1$drink_last_week)
+out2$out.yrs_fu <- is_extreme(out2$yrs_followup)
+out3$out.lookNeut <- is_extreme(out3$LookNeutral_Rating)
+out4$out.bmi <- is_extreme(out4$BMI)
+out5$out.hdl <- is_extreme(out5$hdl)
+out6$out.trig <- is_extreme(out6$trig)
+
+out <- merge(out1, out2, by = "id.public")
+out <- merge(out, out3, by = "id.public")
+out <- merge(out, out4, by = "id.public")
+out <- merge(out, out5, by = "id.public")
+out <- merge(out, out6, by = "id.public")
+
+out <- out[!(out$out.drink=="FALSE" & out$out.yrs_fu=="FALSE" & 
+               out$out.lookNeut=="FALSE" & 
+               out$out.bmi=="FALSE" & out$out.hdl=="FALSE" & 
+               out$out.trig=="FALSE"),]
+
+out <- out[!is.na(out$id.public),]
+
+out <- out[c("id.public", "out.drink", "out.yrs_fu", "out.lookNeut", 
+             "out.bmi", "out.hdl", "out.trig")]
+
+library(kableExtra)
+
+out.table <- kable(out, format = "html", 
+      caption = "Summary of Outliers (>3SD) for all Study Variables",
+      align = "ccrr") 
+
+out.table <- kable_styling(out.table, bootstrap_options = c("striped", "hover", "condensed", "responsive"), font_size = 10, full_width = FALSE)
+
+out.table
+
+```
+
+# Skew
+```{r, warning = FALSE}
+# Removed ids, dates, notes, and categorical data
+pip.var <- pip[c("age", "drink_last_week", "LookNeutral_Rating", "LookNeg_Rating",
+                 "RegulateNeg_Rating", "chg_LNeg_LNur", "chg_RNeg_LNeg", 
+                 "mavgccaf", "mavgccaf_chgPerYr", "Site_of_Fastest_IMT_Max_Progr",
+                 "BMI", "waist", "sbp", "dbp", "hr", "glucose", "choles", "hdl",
+                 "ldl", "trig", "fram.10yrRisk")]
+
+pip.skew <- as.data.frame(lapply(pip.var, psych::skew))
+pip.skew
+
+ #which(pip.skew >= 2)
+ #colnames(pip.skew[c(2, 3, 10, 20, 21)])
+```
+**Five variables showed skew > 2:** Triglycerides, Drinks-last week (V1), Look Neutral Rating, IMT at site of fastest progression, and Framingham 10 year risk score.
+
+## Triglycerides 
+```{r, warning = FALSE}
+
+skew <- pip[c("id.public", "trig", "drink_last_week", 
+              "LookNeutral_Rating", "Site_of_Fastest_IMT_Max_Progr",
+              "fram.10yrRisk")]
+
+#Outliers
+#which(is_extreme(skew$trig) == TRUE)
+skew.trig <- skew[-c(86, 162, 172), ] 
+
+par(mfrow =c(1, 2))
+hist(pip$trig,
+     main = "Histogram of Triglycerides with outliers at baseline",
+     xlab = "Triglycerides (mg/dL)")
+
+hist(skew.trig$trig,
+     main = "Histogram of Triglycerides without outliers at baseline",
+     xlab = "Triglycerides (mg/dL)")
+```
+After removing the outliers, the skew is within normal limits. Without the outliers, the skew is `r round(psych::skew(skew.trig$trig), digits =2)`
+  
+## Drink_last_week (V1)
+```{r, warning = FALSE}
+
+
+#Outliers
+#which(is_extreme(skew$drink_last_week) == TRUE)
+skew.drinkV1 <- skew[-c(100, 164, 170), ] 
+
+#which(is_extreme(skew$drink_last_week_v2) == TRUE)
+skew.drinkV2 <- skew[-c(168, 169), ]
+
+par(mfrow =c(2, 2))
+hist(pip$drink_last_week,
+     main = "Histogram of Drinks @ V1 with outliers at baseline",
+     xlab = "Number of Drinks in the last week (V1)")
+
+hist(skew.drinkV1$drink_last_week,
+     main = "Histogram of Drinks @ V1 without outliers at baseline",
+     xlab = "Number of Drinks in the last week (V1)")
+
+```
+After removing the outliers, the skew is within normal limits. Without the outliers, skew for V1 = `r round(psych::skew(skew.drinkV1$drink_last_week), digits =2)`
+
+## Look Neutral Rating   
+```{r, warning = FALSE}
+
+#Outliers
+#which(is_extreme(skew$LookNeutral_Rating) == TRUE)
+skew.lookNeut <- skew[-c(32, 49, 56, 63, 125, 148), ] 
+
+par(mfrow =c(2, 2))
+hist(pip$LookNeutral_Rating,
+     main = "Histogram of Look Neutral Rating with outliers at baseline",
+     xlab = "Look Neutral Rating (1-5)")
+
+hist(skew.lookNeut$LookNeutral_Rating,
+     main = "Histogram of Look Neutral Rating without outliers at baseline",
+     xlab = "Look Neutral Rating (1-5)")
+
+```
+After removing the outliers, the skew is within normal limits. Without the outliers, the skew is `r round(psych::skew(skew.lookNeut$LookNeutral_Rating), digits = 2)`
+
+## Mean IMT at Site of Max Progression   
+```{r, warning = FALSE}
+
+#Outliers
+#which(is_extreme(skew$Site_of_Fastest_IMT_Max_Progr) == TRUE)
+skew.maxprog <- skew[-c(50, 97, 109, 160, 176), ] 
+skew.maxprog <- skew.maxprog[complete.cases(skew.maxprog), ]
+
+par(mfrow =c(2, 2))
+hist(pip$Site_of_Fastest_IMT_Max_Progr,
+     main = "Histogram of IMT @ Max Progression with outliers at baseline",
+     xlab = "IMT @ Max Progression (mm)")
+
+hist(skew.maxprog$Site_of_Fastest_IMT_Max_Progr,
+     main = "Histogram of IMT @ Max Progression without outliers at baseline",
+     xlab = "IMT @ Max Progression (mm)")
+
+```
+After removing the outliers, the skew and kurtosis are within normal limits. Without the outliers, the skew is `r round(psych::skew(skew.maxprog$Site_of_Fastest_IMT_Max_Progr), digits = 2)` and kurtosis is `r round(psych::kurtosi(skew.maxprog$Site_of_Fastest_IMT_Max_Progr), digits = 2)`
+
+## Framingham 10yr Risk Score   
+```{r, warning = FALSE}
+
+#Outliers
+#which(is_extreme(skew$fram.10yrRisk) == TRUE)
+skew.fram <- skew[-c(3, 14, 20, 22, 50, 56, 67, 83, 99, 115, 117, 120, 123, 
+                     128, 130), ] 
+
+par(mfrow =c(2, 2))
+hist(pip$fram.10yrRisk,
+     main = "Histogram of Framingham 10yr Risk with outliers at baseline",
+     xlab = "Framingham 10yr Risk (%)")
+
+hist(skew.fram$fram.10yrRisk,
+     main = "Histogram of Framingham 10yr Risk without outliers at baseline",
+     xlab = "Framingham 10yr Risk (%)")
+
+```
+After removing the outliers, the skew is within normal limits. Without the outliers, the skew is `r round(psych::skew(skew.fram$fram.10yrRisk), digits = 2)` and kurtosis is `r round(psych::kurtosi(skew.fram$fram.10yrRisk), digits = 2)`
+
+
+# Kurtosis
+```{r, warning = FALSE}
+pip.kurtosis <- as.data.frame(lapply(pip.var, psych::kurtosi))
+pip.kurtosis
+ #which(pip.kurtosis >= 9)
+ #colnames(pip.kurtosis[c(10, 21)])
+```
+**Three variable showed kurtosis > 9:** (`r colnames(pip.kurtosis[c(1, 10, 21)])`). Above, it was demonstrated that removing outliers improves the kurtosis for both IMT at the site of maximum progression and the 10-year Framingham risk score.
+
+## Years follow-up
+```{r, warning = FALSE}
+
+#Outliers
+which(is_extreme(pip$yrs_followup) == TRUE)
+kurt.yr_fu <- pip[-c(4, 30, 31, 119, 166), ] 
+
+par(mfrow =c(2, 2))
+hist(pip$yrs_followup,
+     main = "Histogram of Followup (in years) with outliers at baseline",
+     xlab = "Follow-up (years)")
+
+hist(kurt.yr_fu$yrs_followup,
+     main = "Histogram of Followup (in years) without outliers at baseline",
+     xlab = "Follow-up (years)")
+
+```
+After removing the outliers, the kurtosis is within normal limits. Without the outliers, the skew is`r round(psych::kurtosi(kurt.yr_fu$yrs_followup), digits = 2)`
+
+# All Descriptives per variable
+```{r, warning = FALSE}
+pip.d <- lapply(pip.var, psych::describe)
+do.call("rbind", pip.d)
+```
+
+# Inter-rater reliability
+```{r warning=FALSE}
+
+library(readr)
+r.icc <- read_csv("Reappraisal_data_final.csv")
+
+
+#Subset data by Visit
+  r1 <- subset(r.icc, rater_initials == "CMD")
+  r2 <- subset(r.icc, rater_initials == "PJG")
+
+  colnames(r1)[4:7] <- c("Reappraise1_YN_pre_R1", "Reappraise1_YN_post_R1", "Strategy1_pre_R1", "Strategy1_post_R1")
+  colnames(r2)[4:7] <- c("Reappraise1_YN_pre_R2", "Reappraise1_YN_post_R2", "Strategy1_pre_R2", "Strategy1_post_R2")
+  
+  colnames(r1)[10:13] <- c("Reappraise2_YN_pre_R1", "Reappraise2_YN_post_R1", "Strategy2_pre_R1", "Strategy2_post_R1")
+  colnames(r2)[10:13] <- c("Reappraise2_YN_pre_R2", "Reappraise2_YN_post_R2", "Strategy2_pre_R2", "Strategy2_post_R2")
+  
+  r1 <- r1[-c(2, 3, 8, 9)]
+  r2 <- r2[-c(2, 3, 8, 9)]
+  
+  r.icc <- merge(r1, r2, by = c("id.public"))
+
+library(irr)
+
+# Reappraisal- Yes / No (Primary Strategy)
+Strategy1 <- r.icc[c('Reappraise1_YN_pre_R1', 'Reappraise1_YN_pre_R2')]
+irr::icc(Strategy1, model = c("twoway"), 
+    type = c("agreement"),
+    unit = "single",
+    conf.level = 0.95)
+
+# Reappraisal- Yes / No (Secondary Strategy)
+Strategy2 <- r.icc[c('Reappraise2_YN_pre_R1', 'Reappraise2_YN_pre_R2')]
+irr::icc(Strategy2, model = c("twoway"), 
+    type = c("agreement"),
+    unit = "single",
+    conf.level = 0.95)
+
+# Best Fit - Primary
+BestFit <- r.icc[c('Strategy1_pre_R1', 'Strategy1_pre_R2')]
+irr::icc(BestFit, model = c("twoway"), 
+    type = c("agreement"),
+    unit = "single",
+    conf.level = 0.95)
+
+# Best Fit - Secondary
+BestFit <- r.icc[c('Strategy2_pre_R1', 'Strategy2_pre_R2')]
+irr::icc(BestFit, model = c("twoway"), 
+    type = c("agreement"),
+    unit = "single",
+    conf.level = 0.95)
+
+```
+
+## Primary Strategy
+```{r}
+library(table1)
+
+included <- subset(r.icc, Reappraise1_YN_post_R1 == 1)
+
+# Assigning levels to best fit - rater 2
+included$Strategy1_post_R1 <- factor(included$Strategy1_post_R1,
+                 levels = c(0, 1, 2, 3, 4, 5, 6, 7, 8),
+                 labels = c("Explicitly Positive", "Change Current Circumstances", "Reality Challenge",
+                            "Change future consequences", "Agency", "Distancing", "Problem Solving",
+                            "Acceptance", "Non-specific Reappraisal"))
+
+table1(~ Strategy1_post_R1, data = included)
+
+# Assigning levels to best fit - rater 2
+included$Strategy1_post_R2 <- factor(included$Strategy1_post_R2,
+                 levels = c(0, 1, 2, 3, 4, 5, 6, 7, 8),
+                 labels = c("Explicitly Positive", "Change Current Circumstances", "Reality Challenge",
+                            "Change future consequences", "Agency", "Distancing", "Problem Solving",
+                            "Acceptance", "Non-specific Reappraisal"))
+
+table1(~ Strategy1_post_R2, data = included)
+
+```
+
+# Correlations
+## Corrplot
+```{r warning=FALSE, cache=TRUE}
+
+library(corrplot)
+
+colnames(pip)[5:26] <- c("Age", "Sex", "Race - Ethnicity", "Waist Circumference", "Clinic SBP", "Clinic DBP", "Clinic HR", "Glucose", "Total Cholesterol", "HDL", "LDL", "Triglycerides",
+                         "Baseline Avg CA-IMT far wall", 
+                         "Drinks in last week", "Smoking Status", "Income", "Years in School",
+                         "Look Neutral Rating", "Look Negative Rating", "Regulate Negative Rating",
+                         "Look Negative - Look Neutral", "Regulate Negative - Look Negative")
+
+colnames(pip)[29] <- c("Change Avg CA-IMT far wall (mm/yr)")
+colnames(pip)[31:32] <- c("Change Avg CA-IMT at Site of Max Progression (mm/yr)", "Framingham 10-yr Risk")
+
+#Used this for corrplot, but only numeric for html
+# c.plot <- pip[c(12:34, 63:64)]
+
+c.plot <- pip[c("Age", "Waist Circumference", "Clinic SBP", "Clinic DBP", 
+                "Clinic HR", "Glucose", "Total Cholesterol", "HDL", "LDL", 
+                "Triglycerides",  "Framingham 10-yr Risk", "Look Neutral Rating", 
+                "Look Negative Rating", "Regulate Negative Rating", 
+                "Look Negative - Look Neutral", "Regulate Negative - Look Negative", 
+                "Baseline Avg CA-IMT far wall",
+                "Change Avg CA-IMT far wall (mm/yr)",
+                "Change Avg CA-IMT at Site of Max Progression (mm/yr)")]
+
+# Running significance test on correlations
+res <- cor.mtest(c.plot, conf.level = 0.95, use = "pairwise.complete.obs",
+                 method = c("pearson"),
+                 alternative = "two.sided")
+
+# Creating Correlelogram
+
+#tiff("CorrPlot_full.tiff", width = 9, height = 8, units = "in", res = 400)
+
+corrplot(cor(c.plot, use = "pairwise.complete.obs", method = c("pearson")), 
+         method = "circle", type = "lower",
+         lower.col = "black", number.cex = 0.7,
+         p.mat = res$p, insig = "label_sig",
+         sig.level = c(.01, .05), pch.cex = .9, pch.col = "black",
+         col=colorRampPalette(c("mediumblue","white","firebrick3"))(200),
+         tl.cex = 0.75, tl.col = "black") 
+
+#dev.off()
+
+```
+
+## Corrplot- w/ effect sizes
+```{r}
+library(corrplot)
+corrplot.mixed(cor(c.plot, use = "pairwise.complete.obs", method = c("pearson")), 
+               lower = "number", upper = "circle",
+               order="hclust", lower.col = "black", number.cex = 0.7,
+               p.mat = res$p, insig = "label_sig",
+               sig.level = c(.01, .05), pch.cex = .9, pch.col = "black",
+               upper.col=colorRampPalette(c("mediumblue","white","firebrick3"))(200),
+               tl.cex = 0.75, tl.col = "black",
+               tl.pos = "lt") 
+
+corrplot(cor(c.plot, use = "pairwise.complete.obs", method = c("pearson")),
+         type = "lower", method = "number", col = "black", number.cex = 0.5,
+         add = T, tl.pos = "n", diag = FALSE, cl.pos = "n")
+
+```
+## Correlation Table
+```{r}
+cor.pip <- round(cor(c.plot, use = "pairwise.complete.obs", method = c("pearson")), digits = 2)
+
+library(kableExtra)
+
+cor.table <- kable(cor.pip, format = "html", 
+      caption = "Correlations for all study variables",
+      align = "ccrr") 
+
+cor.table <- kable_styling(cor.table, bootstrap_options = c("striped", "hover", "condensed", "responsive"), font_size = 10, full_width = FALSE)
+
+cor.table
+
+```
+
+
+## Pair Plots
+```{r}
+
+pairs(c.plot[c("Framingham 10-yr Risk", "Look Negative - Look Neutral", 
+               "Regulate Negative - Look Negative",
+               "Baseline Avg CA-IMT far wall", 
+               "Change Avg CA-IMT far wall (mm/yr)",
+               "Change Avg CA-IMT at Site of Max Progression (mm/yr)")])
+
+```
+

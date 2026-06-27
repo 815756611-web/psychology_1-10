@@ -1,0 +1,69 @@
+A systems-identification approach using Bayes factors to deconstruct the brain bases of emotion regulation
+Download summary
+Generated: 2026-06-04
+
+Local root:
+C:\Users\81575\Desktop\vscode_box\A_systems_identification_emotion_regulation
+
+Downloaded and classified:
+
+00_paper_and_metadata
+- paper.pdf copied from the user-provided PDF.
+
+01_first_level_beta_maps_neurovault
+- Source: NeuroVault collection 16266.
+- 1074/1074 single-subject beta maps downloaded and size-checked against the NeuroVault manifest.
+- Breakdown:
+  - AHAB LookNeg: 182 files
+  - AHAB LookNeu: 182 files
+  - AHAB RegNeg: 182 files
+  - PIP LookNeg: 176 files
+  - PIP LookNeu: 176 files
+  - PIP RegNeg: 176 files
+- Manifest: 07_download_logs\neurovault_16266_manifest.csv
+
+02_behavioral_and_subject_metadata
+- MetaInfo_IDoff.xlsx copied from KeBo2018/KeBo2023_EmotionReg_BayesFactor.
+- Full behavioral/fMRI metadata objects referenced by the MATLAB code were not publicly downloadable from the paper links:
+  - AHAB_FullData_Meta.mat
+  - PIP_FullData_Meta.mat
+
+03_pet_and_neurotransmitter_maps
+- Hansen PET tracer map files from CANlab Neuroimaging_Pattern_Masks.
+- Hansen_2022_PET_tracer_maps_Zscored_Averaged.mat also copied from the KeBo repo.
+
+04_neurosynth_and_meta_maps
+- CANlab Neurosynth_maps, including 2016_Neurosynth_100_topics, mkda, scripts, topic_terms_csv, and related png previews.
+
+05_system_component_maps
+- System component MAT files from KeBo2018/KeBo2023_EmotionReg_BayesFactor.
+- CANlab 2024_Bo_EmotionRegulation_BayesFactor NIfTI maps and png previews.
+
+06_github_code_and_toolboxes
+- KeBo2018_KeBo2023_EmotionReg_BayesFactor: 27 files downloaded from GitHub raw URLs.
+- True git clone was attempted but failed because local git/DNS could not resolve github.com. The files are present, but this directory is not a .git clone.
+
+07_download_logs
+- Download manifests, logs, and scripts_used are stored here.
+
+Not publicly downloaded:
+- Raw BOLD/fMRI time series were not listed as publicly available in the article data-availability section or the project README.
+- The MATLAB code references local packed beta/object files that were not available at the public links:
+  - AHAB_WithoutRest3_Whole_Beta.mat
+  - PIP_WithoutRest3_Whole_Beta.mat
+- The public replacement for these packed objects is the individual NeuroVault beta maps downloaded above.
+
+Network/Git note:
+- git clone / git ls-remote failed with: Could not resolve host: github.com.
+- The R2026 repository has local .git/config proxy entries pointing to http://127.0.0.1:7890, matching the VS Code error screenshot.
+- This run did not modify git config. Downloads used PowerShell web requests and raw GitHub URLs instead.
+
+Primary sources:
+- Nature article: https://www.nature.com/articles/s41593-024-01605-7
+- NeuroVault collection 16266: https://neurovault.org/collections/16266/
+- NeuroVault identifier: https://identifiers.org/neurovault.collection:16266
+- KeBo GitHub repo: https://github.com/KeBo2018/KeBo2023_EmotionReg_BayesFactor
+- CANlab Neuroimaging_Pattern_Masks: https://github.com/canlab/Neuroimaging_Pattern_Masks
+- CANlab Hansen PET maps: https://github.com/canlab/Neuroimaging_Pattern_Masks/tree/master/Atlases_and_parcellations/2022_Hansen_PET_tracer_maps
+- CANlab Neurosynth maps: https://github.com/canlab/Neuroimaging_Pattern_Masks/tree/master/Neurosynth_maps
+- CANlab Bo 2024 maps: https://github.com/canlab/Neuroimaging_Pattern_Masks/tree/master/Individual_study_maps/2024_Bo_EmotionRegulation_BayesFactor

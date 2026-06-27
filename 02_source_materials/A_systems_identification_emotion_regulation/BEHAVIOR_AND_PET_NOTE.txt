@@ -1,0 +1,70 @@
+Behavior and PET data check
+Generated: 2026-06-04
+
+Short answer:
+Behavior data and PET data are available locally. The earlier note that full behavioral/fMRI metadata objects were not public referred only to the original MATLAB .mat objects referenced by the authors' scripts, not to all behavioral variables.
+
+Behavior data currently available:
+
+1. Official KeBo/GitHub-derived metadata table
+Folder:
+02_behavioral_and_subject_metadata
+
+Files:
+- MetaInfo_IDoff.xlsx
+- MetaInfo_IDoff_full.csv
+- AHAB_behavior_from_MetaInfo_IDoff.csv
+- PIP_behavior_from_MetaInfo_IDoff.csv
+
+Rows and columns:
+- 358 rows total
+- AHAB: 182 participants
+- PIP: 176 participants
+- Columns:
+  SubID, Sample, Age, Sex, ERQReappraisal, ERQSuppression,
+  strategy1_reappraise_yn_final, strategy1_best_fit_final,
+  RegNeg_Rating, LookNeg_Rating, LookNeuRating
+
+2. Related PIP OSF project, not the official Bayes paper data package
+Folder:
+02_behavioral_and_subject_metadata\related_PIP_OSF_hk6qx
+
+Downloaded files include:
+- Reap_IMT_Data_12_July_2021.csv
+- Reappraisal_data_final.csv
+- IAPS_Ratings_LookNeg_Reg_Neg.pdf
+- fMRI_Reappraisal_Instructions_Post_task_Qs.pdf
+
+Useful PIP rating columns in Reap_IMT_Data_12_July_2021.csv:
+- LookNeutral_Rating
+- LookNeg_Rating
+- RegulateNeg_Rating
+- chg_LNeg_LNur
+- chg_RNeg_LNeg
+
+PET data currently available:
+Folder:
+03_pet_and_neurotransmitter_maps
+
+Main files:
+- CANlab_2022_Hansen_PET_tracer_maps\Hansen_2022_PET_tracer_maps.mat
+- CANlab_2022_Hansen_PET_tracer_maps\Hansen_2022_PET_tracer_maps_masked.mat
+- CANlab_2022_Hansen_PET_tracer_maps\Hansen_2022_PET_tracer_maps_masked_combined.mat
+- CANlab_2022_Hansen_PET_tracer_maps\Hansen_2022_PET_tracer_maps_Zscored_Averaged.mat
+- Hansen_2022_PET_tracer_maps_Zscored_Averaged_from_Kebo_repo.mat
+
+The CANlab contents_description.md states these are 19 PET radioligand maps across 9 neurotransmitter systems, including a z-scored / target-averaged version. The KeBo README specifically names Hansen_2022_PET_tracer_maps_Zscored_Averaged.mat for Figure 7.
+
+Still not found as public downloads:
+- AHAB_FullData_Meta.mat
+- PIP_FullData_Meta.mat
+- AHAB_WithoutRest3_Whole_Beta.mat
+- PIP_WithoutRest3_Whole_Beta.mat
+
+Those .mat files are local author-side Canlab/fMRI_data objects referenced in scripts. Their public equivalents for the paper's main imaging analysis are the 1074 individual NeuroVault beta maps already downloaded.
+
+Sources:
+- KeBo GitHub repo: https://github.com/KeBo2018/KeBo2023_EmotionReg_BayesFactor
+- NeuroVault collection 16266: https://neurovault.org/collections/16266/
+- CANlab Hansen PET maps: https://github.com/canlab/Neuroimaging_Pattern_Masks/tree/master/Atlases_and_parcellations/2022_Hansen_PET_tracer_maps
+- Related PIP OSF project: https://osf.io/hk6qx/

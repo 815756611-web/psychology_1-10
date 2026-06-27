@@ -1,0 +1,7 @@
+data/raw/
+outputs/
+logs/
+*.RData
+*.rds
+.Rhistory
+
